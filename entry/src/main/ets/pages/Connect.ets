@@ -1,4 +1,5 @@
 import { DefaultUserList, UserInfo } from '../models/users'
+import { router } from '@kit.ArkUI'
 
 @Component
 struct Connect {
@@ -36,7 +37,7 @@ struct Connect {
         left: 10,
         right: 10
       })
-      
+
       // 联系人列表
       List() {
         ForEach(this.filterList, (item: UserInfo) => {
@@ -72,6 +73,12 @@ struct Connect {
             })
 
           }
+          .onClick(() => {
+            router.pushUrl({
+              url: "pages/ChatDetail/ChatDetail",
+              params: item
+            })
+          })
         }, (item: UserInfo) => item.user_id)
       }
       .width("100%")
