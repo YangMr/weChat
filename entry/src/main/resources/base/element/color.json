@@ -3,6 +3,86 @@
     {
       "name": "start_window_background",
       "value": "#FFFFFF"
+    },
+    {
+      "name": "primary",
+      "value": "#1AAD19"
+    },
+    {
+      "name": "second_primary",
+      "value": "#a9ea7a"
+    },
+    {
+      "name": "text_primary",
+      "value": "#2A2929"
+    },
+    {
+      "name": "text_second",
+      "value": "#818181"
+    },
+    {
+      "name": "back_color",
+      "value": "#ededed"
+    },
+    {
+      "name": "second_back_color",
+      "value": "#f6f6f6"
+    },
+    {
+      "name": "border_color",
+      "value": "#f4f5f6"
+    },
+    {
+      "name": "danger",
+      "value": "#e75f58"
+    },
+    {
+      "name": "white",
+      "value": "#ffffff"
+    },
+    {
+      "name": "bottom_color",
+      "value": "#a4a4a4"
+    },
+    {
+      "name": "bottom_voice_color",
+      "value": "#515151"
+    },
+    {
+      "name": "voice_back_color",
+      "value": "#CC3E3E3E"
+    },
+    {
+      "name": "voice_round_color",
+      "value": "#323232"
+    },
+    {
+      "name": "voice_round_font_color",
+      "value": "#919191"
+    },
+    {
+      "name": "chat_primary",
+      "value": "#8aec71"
+    },
+    {
+      "name": "animate_voice_color",
+      "value": "#4a8040"
+    },
+    {
+      "name": "black",
+      "value": "#000000"
+    },
+    {
+      "name": "popup_back",
+      "value": "#4d4d4d"
+    },
+    {
+      "name": "location_back",
+      "value": "#80767676"
+    },
+    {
+      "name": "pay_back",
+      "value": "#57ab70"
     }
   ]
 }
