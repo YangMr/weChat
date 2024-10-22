@@ -1,5 +1,16 @@
+import { DefaultUserList, UserInfo } from '../models/users'
+
 @Component
 struct Connect {
+  @State
+  filterList: UserInfo[] = []
+
+  // 组件开始加载的时候触发
+  aboutToAppear(): void {
+    // 组件一开始加载的时候, 将自定义的数据赋值给filterList
+    this.filterList = DefaultUserList
+  }
+
   build() {
     Column() {
       // 搜索栏
@@ -18,16 +29,16 @@ struct Connect {
 
       // 联系人列表
       List() {
-        ForEach([1, 2, 3, 4, 5, 6, 7, 8, 9], () => {
+        ForEach(this.filterList, (item: UserInfo) => {
           ListItem() {
             Row({ space: 10 }) {
-              Image("https://img2.baidu.com/it/u=2778471297,524433918&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500")
+              Image(item.avatar)
                 .width(30)
                 .height(30)
                 .borderRadius(4)
 
               Column() {
-                Text("小趴菜")
+                Text(item.username)
                   .fontSize(14)
                   .fontColor($r("app.color.text_primary"))
               }
@@ -51,7 +62,7 @@ struct Connect {
             })
 
           }
-        })
+        }, (item: UserInfo) => item.user_id)
       }
       .width("100%")
       .height("100%")
