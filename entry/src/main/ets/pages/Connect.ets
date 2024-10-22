@@ -4,6 +4,9 @@ import { DefaultUserList, UserInfo } from '../models/users'
 struct Connect {
   @State
   filterList: UserInfo[] = []
+  @State
+  @Watch("filterName")
+  searchName: string = ""
 
   // 组件开始加载的时候触发
   aboutToAppear(): void {
@@ -11,11 +14,19 @@ struct Connect {
     this.filterList = DefaultUserList
   }
 
+  // 筛选联系人方法
+  filterName() {
+    this.filterList = DefaultUserList.filter((user: UserInfo) => {
+      // 如果联系人列表数据中,存在输入的联系人名称,则将搜索到的联系人数据返回给filterList
+      return user.username.includes(this.searchName)
+    })
+  }
+
   build() {
     Column() {
       // 搜索栏
       Row() {
-        Search({ placeholder: "搜索" })
+        Search({ placeholder: "搜索", value: $$this.searchName })
           .backgroundColor($r("app.color.white"))
           .height(30)
           .borderRadius(4)
@@ -25,8 +36,7 @@ struct Connect {
         left: 10,
         right: 10
       })
-
-
+      
       // 联系人列表
       List() {
         ForEach(this.filterList, (item: UserInfo) => {
