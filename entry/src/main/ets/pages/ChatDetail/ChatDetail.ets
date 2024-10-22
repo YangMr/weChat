@@ -1,5 +1,6 @@
 import { router } from '@kit.ArkUI'
 import { UserInfo } from '../../models/users'
+import BottomInput from './BottomInput'
 
 @Entry
 @Component
@@ -13,6 +14,7 @@ struct ChatDetail {
 
   build() {
     Column() {
+      // 标题栏
       Row() {
         Stack({ alignContent: Alignment.Start }) {
           Text(this.talker.username)
@@ -30,6 +32,12 @@ struct ChatDetail {
         }
       }
       .height(50)
+
+      // 聊天内容区
+      Blank()
+
+      // 底部输入框
+      BottomInput()
     }
     .height('100%')
     .width('100%')
