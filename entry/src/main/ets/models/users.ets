@@ -59,3 +59,10 @@ export const DefaultUserList: UserInfo[] = [
     user_id: '10'
   }
 ]
+
+// 定义自己的信息
+export const currentUser: UserInfo = {
+  username: "yangMr",
+  avatar: "https://foruda.gitee.com/avatar/1705232317138324256/1759638_itcast_panpu_1705232317.png",
+  user_id: "root"
+}
