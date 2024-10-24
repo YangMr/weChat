@@ -1,6 +1,8 @@
 import { router } from '@kit.ArkUI'
+import { getMessageInfo } from '../../api'
 import { MessageInfo, MessageInfoModel } from '../../models/message'
 import { currentUser, UserInfo } from '../../models/users'
+import { StoreClass } from '../../utils/StoreClass'
 import BottomInput from './BottomInput'
 import Message from './Message'
 
@@ -62,6 +64,11 @@ struct ChatDetail {
     }),
 
   ]
+  // 滚动条控件
+  scroller: Scroller = new Scroller()
+  // 是否是正在输入的状态 false 已完成状态 true正在输入的状态
+  @State
+  talkerInputIng: boolean = false
 
   // 发送数据的数据
   sendTextMessage(content: string) {
@@ -73,6 +80,38 @@ struct ChatDetail {
     } as MessageInfo)
     this.messageList.push(message)
 
+    this.getResponseMessage(content)
+
+    // 添加数据
+    StoreClass.addChatMessage(this.talker.user_id, message)
+
+
+    this.scroller.scrollEdge(Edge.Bottom)
+  }
+
+  // 定义机器人回复的方法
+  async getResponseMessage(content: string) {
+    this.talkerInputIng = true
+    try {
+      const res = await getMessageInfo(content)
+
+      let message = new MessageInfoModel({
+        messageContent: res?.info?.text,
+        sendUser: this.talker,
+        connectUser: this.talker
+      } as MessageInfo)
+
+      this.messageList.push(message)
+
+      this.scroller.scrollEdge(Edge.Bottom)
+
+      this.talkerInputIng = false
+
+      // 添加数据
+      StoreClass.addChatMessage(this.talker.user_id, message)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   aboutToAppear(): void {
@@ -84,7 +123,7 @@ struct ChatDetail {
       // 标题栏
       Row() {
         Stack({ alignContent: Alignment.Start }) {
-          Text(this.talker.username)
+          Text(this.talkerInputIng ? "对方正在输入中" : this.talker.username)
             .width("100%")
             .textAlign(TextAlign.Center)
             .fontSize(16)
@@ -101,9 +140,10 @@ struct ChatDetail {
       .height(50)
 
       // 聊天内容区
-      List({ space: 20 }) {
+      List({ space: 20, scroller: this.scroller }) {
         ForEach(this.messageList, (item: MessageInfoModel) => {
           ListItem() {
+            //
             Message({
               currentMessage: item,
             })
