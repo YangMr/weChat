@@ -5,6 +5,7 @@ import { currentUser, UserInfo } from '../../models/users'
 import { StoreClass } from '../../utils/StoreClass'
 import BottomInput from './BottomInput'
 import Message from './Message'
+import { emitter } from '@kit.BasicServicesKit'
 
 @Entry
 @Component
@@ -14,54 +15,54 @@ struct ChatDetail {
   // 聊天记录的列表数据
   @State
   messageList: MessageInfoModel[] = [
-    new MessageInfoModel({
-      id: "1", // 标识
-      sendUser: currentUser, // 这条消息的发送者
-      sendTime: 1729666240777, // 发送时间
-      sourceFilePath: "", // 音频地址 图片地址 视频地址
-      sourceDuration: 0, // 音频或者视频的长度 单位s
-      messageType: 0, // 0表示发送的消息是一个文本
-      messageContent: "hello, 您好",
-      connectUser: currentUser // 这条消息的归属者
-    }),
-    new MessageInfoModel({
-      id: "2", // 标识
-      sendUser: {
-        username: "刘浩",
-        avatar: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fbb560b27-a0b7-4062-ae40-efe4e5a8a748%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069619&t=8605f8477712cf9c5a1159db0cd7dab4",
-        user_id: "liu"
-      }, // 这条消息的发送者
-      sendTime: 1729666240777, // 发送时间
-      sourceFilePath: "", // 音频地址 图片地址 视频地址
-      sourceDuration: 0, // 音频或者视频的长度 单位s
-      messageType: 0, // 0表示发送的消息是一个文本
-      messageContent: "您好",
-      connectUser: currentUser // 这条消息的归属者
-    }),
-    new MessageInfoModel({
-      id: "3", // 标识
-      sendUser: currentUser, // 这条消息的发送者
-      sendTime: 1729666240777, // 发送时间
-      sourceFilePath: "", // 音频地址 图片地址 视频地址
-      sourceDuration: 0, // 音频或者视频的长度 单位s
-      messageType: 0, // 0表示发送的消息是一个文本
-      messageContent: "你吃饭了吗",
-      connectUser: currentUser // 这条消息的归属者
-    }),
-    new MessageInfoModel({
-      id: "4", // 标识
-      sendUser: {
-        username: "刘浩",
-        avatar: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fbb560b27-a0b7-4062-ae40-efe4e5a8a748%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069619&t=8605f8477712cf9c5a1159db0cd7dab4",
-        user_id: "liu"
-      }, // 这条消息的发送者
-      sendTime: 1729666240777, // 发送时间
-      sourceFilePath: "", // 音频地址 图片地址 视频地址
-      sourceDuration: 0, // 音频或者视频的长度 单位s
-      messageType: 0, // 0表示发送的消息是一个文本
-      messageContent: "没有,你请我吗?",
-      connectUser: currentUser // 这条消息的归属者
-    }),
+  // new MessageInfoModel({
+  //   id: "1", // 标识
+  //   sendUser: currentUser, // 这条消息的发送者
+  //   sendTime: 1729666240777, // 发送时间
+  //   sourceFilePath: "", // 音频地址 图片地址 视频地址
+  //   sourceDuration: 0, // 音频或者视频的长度 单位s
+  //   messageType: 0, // 0表示发送的消息是一个文本
+  //   messageContent: "hello, 您好",
+  //   connectUser: currentUser // 这条消息的归属者
+  // }),
+  // new MessageInfoModel({
+  //   id: "2", // 标识
+  //   sendUser: {
+  //     username: "刘浩",
+  //     avatar: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fbb560b27-a0b7-4062-ae40-efe4e5a8a748%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069619&t=8605f8477712cf9c5a1159db0cd7dab4",
+  //     user_id: "liu"
+  //   }, // 这条消息的发送者
+  //   sendTime: 1729666240777, // 发送时间
+  //   sourceFilePath: "", // 音频地址 图片地址 视频地址
+  //   sourceDuration: 0, // 音频或者视频的长度 单位s
+  //   messageType: 0, // 0表示发送的消息是一个文本
+  //   messageContent: "您好",
+  //   connectUser: currentUser // 这条消息的归属者
+  // }),
+  // new MessageInfoModel({
+  //   id: "3", // 标识
+  //   sendUser: currentUser, // 这条消息的发送者
+  //   sendTime: 1729666240777, // 发送时间
+  //   sourceFilePath: "", // 音频地址 图片地址 视频地址
+  //   sourceDuration: 0, // 音频或者视频的长度 单位s
+  //   messageType: 0, // 0表示发送的消息是一个文本
+  //   messageContent: "你吃饭了吗",
+  //   connectUser: currentUser // 这条消息的归属者
+  // }),
+  // new MessageInfoModel({
+  //   id: "4", // 标识
+  //   sendUser: {
+  //     username: "刘浩",
+  //     avatar: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fbb560b27-a0b7-4062-ae40-efe4e5a8a748%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069619&t=8605f8477712cf9c5a1159db0cd7dab4",
+  //     user_id: "liu"
+  //   }, // 这条消息的发送者
+  //   sendTime: 1729666240777, // 发送时间
+  //   sourceFilePath: "", // 音频地址 图片地址 视频地址
+  //   sourceDuration: 0, // 音频或者视频的长度 单位s
+  //   messageType: 0, // 0表示发送的消息是一个文本
+  //   messageContent: "没有,你请我吗?",
+  //   connectUser: currentUser // 这条消息的归属者
+  // }),
 
   ]
   // 滚动条控件
@@ -115,7 +116,18 @@ struct ChatDetail {
   }
 
   aboutToAppear(): void {
+    // 接受其他通过路由页面传递过来的参数
     this.talker = router.getParams() as UserInfo
+
+    // 获取存储在首选项当中的某个人(当前传入的用户id)的数据
+    this.messageList = StoreClass.getChatMessage(this.talker.user_id)
+  }
+
+  // 删除UI界面数据的方法
+  delMessage(id: string) {
+    const index = this.messageList.findIndex((item: MessageInfoModel) => item.id === id)
+    this.messageList.splice(index, 1)
+    emitter.emit(StoreClass.wechat_key)
   }
 
   build() {
@@ -146,6 +158,9 @@ struct ChatDetail {
             //
             Message({
               currentMessage: item,
+              delMessage: (id: string) => {
+                this.delMessage(id)
+              }
             })
           }
         })
