@@ -1,5 +1,6 @@
 import { TabBarClass } from '../models/tab'
 import Connect from './Connect'
+import WeChat from './WeChat'
 
 
 @Entry
@@ -58,7 +59,7 @@ struct Index {
         ForEach(this.tabBarList, (item: TabBarClass) => {
           TabContent() {
             if (item.name === "wechat") {
-              Text("微信")
+              WeChat()
             } else if (item.name === "connect") {
               Connect()
             } else if (item.name === "discover") {
