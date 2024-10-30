@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "/Users/yangling/.ohos/config/default_weChat_H1PyDaLSGUTJmjy6UDmo0PtPwLcGqAs9uCVkBI5gUOs=.cer",
+          "storePassword": "0000001ADD2B0EBDDDAFD1032B67E55E76CF5E785536AC04F82F5199BAEB133993D454A34131402AA20D",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A9192570A03F45035E4D72C657708ABEEA74D6DD395B18EE24417EB09D6F35368C4EEE447303C",
+          "profile": "/Users/yangling/.ohos/config/default_weChat_H1PyDaLSGUTJmjy6UDmo0PtPwLcGqAs9uCVkBI5gUOs=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "/Users/yangling/.ohos/config/default_weChat_H1PyDaLSGUTJmjy6UDmo0PtPwLcGqAs9uCVkBI5gUOs=.p12"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

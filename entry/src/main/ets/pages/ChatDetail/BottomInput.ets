@@ -1,4 +1,6 @@
-import { promptAction } from '@kit.ArkUI'
+import { display, promptAction } from '@kit.ArkUI'
+import { VoiceRecordEnum } from '../../models/voice'
+import VoiceInput from './VoiceInput'
 
 @Component
 struct BottomInput {
@@ -10,78 +12,39 @@ struct BottomInput {
   // 控制按钮说话按钮的弹层
   @State
   showVoiceCom: boolean = false
+  // 记录屏幕整体的宽度
+  @State
+  screenWidth: number = 0
+  // 记录屏幕整体的高度
+  screenHeight: number = 0
+  // 保存当前的状态
+  @Provide
+  voiceState: VoiceRecordEnum = VoiceRecordEnum.RecordIng
+
+  // 页面加载的时候获取整个屏幕的宽度与高度
+  aboutToAppear(): void {
+    // px 转化为 vp
+    this.screenWidth = px2vp(display.getDefaultDisplaySync().width)
+    this.screenHeight = px2vp(display.getDefaultDisplaySync().height)
+  }
+
   sendTextMessage: (content: string) => void = () => {
   }
 
+  // 1. 获取整个屏幕的宽度与高度
+  // 2. 获取当前手指触摸的坐标x - y
+  // 3. 手势拖动的时候, 判断当前手指触摸的坐标x - y 是否大于
+  // 屏幕高度 -  录音区域的高度
+  // 4. 如果大于 屏幕高度 -  录音区域的高度 说明手势拖动录音区域
+  // 5. 如果小于 屏幕高度 -  录音区域的高度 说明手势不在拖动录音区域
+
+  // 1. 定义三个状态 0 录音 1 取消 2 语音转文字
+
   @Builder
   getVoiceCom() {
-    Stack({ alignContent: Alignment.Bottom }) {
-      Column() {
-        //显示关闭和文本
-        Row() {
-          Row() {
-            Image($r("app.media.ic_public_cancel"))
-              .width(30)
-              .height(30)
-              .fillColor($r("app.color.voice_round_font_color"))
-          }
-          .width(70)
-          .aspectRatio(1)
-          .borderRadius(35)
-          .justifyContent(FlexAlign.Center)
-          .backgroundColor($r("app.color.voice_round_color"))
-          .rotate({
-            angle: -10
-          })
-
-          Row() {
-            Text("文")
-              .fontSize(24)
-              .textAlign(TextAlign.Center)
-              .fontColor($r("app.color.voice_round_font_color"))
-          }
-          .width(70)
-          .aspectRatio(1)
-          .borderRadius(35)
-          .justifyContent(FlexAlign.Center)
-          .backgroundColor($r("app.color.voice_round_color"))
-          .rotate({
-            angle: 10
-          })
-
-        }
-        .width("100%")
-        .justifyContent(FlexAlign.SpaceBetween)
-        .padding({
-          left: 40,
-          right: 40
-        })
-        .margin({
-          bottom: 30
-        })
-
-        Stack() {
-          Image($r("app.media.ic_public_output"))
-            .width("100%")
-            .height(120)
-            .fillColor($r("app.color.bottom_color"))
-            .scale({
-              x: 1.2
-            })
-          Image($r("app.media.ic_public_recorder"))
-            .width(30)
-            .height(30)
-            .fillColor($r("app.color.bottom_voice_color"))
-
-        }
-        .width("100%")
-      }
-
+    Column() {
+      VoiceInput()
     }
-    .width("100%")
-    .height("100%")
-    .backgroundColor($r("app.color.voice_back_color"))
-
   }
 
   build() {
@@ -103,17 +66,53 @@ struct BottomInput {
             .height(35)
             .layoutWeight(1)
             .borderRadius(2)
-            .fontColor($r("app.color.text_primary"))
-            .gesture(LongPressGesture()
-              .onAction(() => {
-                // 手势开始的时候触发
-                this.showVoiceCom = true
-              })
-              .onActionEnd(() => {
-                // 手势结束的时候触发
-                this.showVoiceCom = false
-              })
+            .fontColor($r("app.color.text_primary"))// 1. 绑定手势
+            .gesture(
+              // 2. 设置手势类型 - 组合手势
+              // 3. 设置组合手势执行的顺序 - 并发执行
+              GestureGroup(
+                GestureMode.Parallel,
+                // 长按手势
+                LongPressGesture()
+                  .onAction(() => {
+                    // 手势开始的时候触发
+                    this.showVoiceCom = true
+                  })
+                  .onActionEnd(() => {
+                    // 手势结束的时候触发
+                    this.showVoiceCom = false
+                  }),
+                // 移动手势
+                PanGesture()
+                  .onActionUpdate((event) => {
+                    if (event.fingerList[0].globalY > this.screenHeight - 120) {
+                      // 手势触摸到录音区域
+
+                      this.voiceState = VoiceRecordEnum.RecordIng
+
+                    } else {
+                      // 手势不在录音区域
+               
+
+                      if (event.fingerList[0].globalX > this.screenWidth / 2) {
+                        // 右侧
+                        this.voiceState = VoiceRecordEnum.Transfer
+
+
+                      } else {
+                        // 左侧
+                        this.voiceState = VoiceRecordEnum.Cancel
+
+
+                      }
+                    }
+                  })
+                  .onActionEnd(() => {
+                    this.voiceState = VoiceRecordEnum.RecordIng
+                  })
+              )
             )
+
             .bindContentCover(this.showVoiceCom, this.getVoiceCom, {
               modalTransition: ModalTransition.NONE
             })
