@@ -61,7 +61,7 @@ export class StoreClass {
   }
 
   // 移除某个人的所有数据
-  static removeChatAllMessages(userId: string) {
+  static removeChatAllMessage(userId: string) {
     preferences.deletePreferences(StoreClass.context, {
       name: `${StoreClass.wechat_key}_${userId}`
     })

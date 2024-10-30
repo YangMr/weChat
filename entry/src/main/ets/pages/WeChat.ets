@@ -4,7 +4,7 @@ import { formatTime } from '../utils/Util'
 import { emitter } from '@kit.BasicServicesKit'
 import { router } from '@kit.ArkUI'
 
-
+@Preview
 @Component
 struct WeChat {
   @State
@@ -62,6 +62,37 @@ struct WeChat {
 
   }
 
+  // 自定义列表滑动删除按钮
+  @Builder
+  getListEnd(user_id: string) {
+    Row() {
+      Text("删除")
+        .fontColor($r("app.color.white"))
+        .width(100)
+        .textAlign(TextAlign.Center)
+    }
+    .height(70)
+    .padding({
+      left: 20,
+      right: 20
+    })
+    .backgroundColor($r("app.color.danger"))
+    .onClick(() => {
+      // 删除首选项的数据
+      StoreClass.removeChatAllMessage(user_id)
+
+      // 删除UI界面的数据
+      const index = this.list.findIndex((item: MessageInfoModel) => item.connectUser.user_id === user_id)
+
+
+      this.list.splice(index, 1)
+      // AlertDialog.show({
+      //   message: index + ""
+      // })
+    })
+
+  }
+
   build() {
     Column() {
       List() {
@@ -107,17 +138,25 @@ struct WeChat {
                 params: item.connectUser
               })
             })
+            .stateStyles({
+              normal: {
+                .backgroundColor($r("app.color.white"))
+              },
+              pressed: {
+                .backgroundColor($r("app.color.back_color"))
+              }
+            })
           }
           .padding({
             top: 10,
             bottom: 10
           })
-          .stateStyles({
-            normal: {
-              .backgroundColor($r("app.color.white"))
-            },
-            pressed: {
-              .backgroundColor($r("app.color.back_color"))
+
+          .swipeAction({
+            end: {
+              builder: () => {
+                this.getListEnd(item.connectUser.user_id)
+              }
             }
           })
         })
