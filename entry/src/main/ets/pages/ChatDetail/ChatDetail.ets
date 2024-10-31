@@ -1,6 +1,6 @@
 import { router } from '@kit.ArkUI'
 import { getMessageInfo } from '../../api'
-import { MessageInfo, MessageInfoModel } from '../../models/message'
+import { MessageInfo, MessageInfoModel, MessageTypeEnum } from '../../models/message'
 import { currentUser, UserInfo } from '../../models/users'
 import { StoreClass } from '../../utils/StoreClass'
 import BottomInput from './BottomInput'
@@ -63,15 +63,28 @@ struct ChatDetail {
   //   messageContent: "没有,你请我吗?",
   //   connectUser: currentUser // 这条消息的归属者
   // }),
-
   ]
   // 滚动条控件
   scroller: Scroller = new Scroller()
   // 是否是正在输入的状态 false 已完成状态 true正在输入的状态
   @State
   talkerInputIng: boolean = false
+  // 定义弹窗的构造器
+  dialogController: CustomDialogController = new CustomDialogController({
+    builder: this.CustomImageDialog,
+    customStyle: true,
+    autoCancel: false
+  })
+  @State
+  previewUrl: string = ""
 
-  // 发送数据的数据
+  // 打开弹窗的方法
+  openCustomImageDialog(filePath: string) {
+    this.previewUrl = filePath
+    this.dialogController.open()
+  }
+
+  // 发送文本数据的方法
   sendTextMessage(content: string) {
     // 把输入框输入的数据添加到messageList中
     let message = new MessageInfoModel({
@@ -113,6 +126,40 @@ struct ChatDetail {
     } catch (e) {
       console.log(e)
     }
+  }
+
+  // 发送图片数据的方法
+  sendImageMessage(filePath: string) {
+    // 把输入框输入的数据添加到messageList中
+    let message = new MessageInfoModel({
+      messageContent: '[图片]',
+      sendUser: currentUser,
+      connectUser: this.talker,
+      sourceFilePath: filePath,
+      messageType: MessageTypeEnum.IMAGE
+    } as MessageInfo)
+    this.messageList.push(message)
+
+    // 添加数据
+    StoreClass.addChatMessage(this.talker.user_id, message)
+
+    this.getResponseMessage("file://" + filePath)
+
+    this.scroller.scrollEdge(Edge.Bottom)
+  }
+
+  @Builder
+  CustomImageDialog() {
+    Column() {
+      Image("file://" + this.previewUrl)
+        .width("100%")
+        .height("100%")
+    }
+    .width("100%")
+    .height("100%")
+    .onClick(() => {
+      this.dialogController.close()
+    })
   }
 
   aboutToAppear(): void {
@@ -160,6 +207,9 @@ struct ChatDetail {
               currentMessage: item,
               delMessage: (id: string) => {
                 this.delMessage(id)
+              },
+              openCustomImageDialog: (filePath: string) => {
+                this.openCustomImageDialog(filePath)
               }
             })
           }
@@ -179,6 +229,9 @@ struct ChatDetail {
       BottomInput({
         sendTextMessage: (content: string) => {
           this.sendTextMessage(content)
+        },
+        sendImageMessage: (filePath: string) => {
+          this.sendImageMessage(filePath)
         }
       })
     }

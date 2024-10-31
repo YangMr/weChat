@@ -1,4 +1,4 @@
-import { MessageInfo, MessageInfoModel } from '../../models/message'
+import { MessageInfo, MessageInfoModel, MessageTypeEnum } from '../../models/message'
 import { PopupItem } from '../../models/popup'
 import { currentUser } from '../../models/users'
 import { StoreClass } from '../../utils/StoreClass'
@@ -53,6 +53,8 @@ struct message {
   ]
   delMessage: (messageId: string) => void = () => {
   }
+  openCustomImageDialog: (filePath: string) => void = () => {
+  }
 
   @Builder
   getContent() {
@@ -93,28 +95,47 @@ struct message {
 
       Row() {
         Column() {
-          Text(this.currentMessage.messageContent)
-            .backgroundColor(currentUser.user_id === this.currentMessage.sendUser.user_id ?
-            $r("app.color.second_primary") : $r("app.color.white"))
-            .fontColor($r("app.color.text_primary"))
-            .padding(10)
+
+          if (this.currentMessage.messageType === MessageTypeEnum.IMAGE) {
+            // 6. 渲染发送的图片
+            Column() {
+              Image("file://" + this.currentMessage.sourceFilePath)
+                .width("100%")
+                .borderRadius(4)
+            }
+            .width("40%")
             .margin({
-              left: 10,
-              right: 10
+              right: 10,
+              left: 10
             })
-            .borderRadius(5)
-            .bindPopup(this.showPopup, {
-              builder: this.getContent,
-              popupColor: $r("app.color.popup_back"),
-              backgroundBlurStyle: BlurStyle.NONE,
-              onStateChange: (event) => {
-                this.showPopup = event.isVisible
-              }
+            .onClick(() => {
+              this.openCustomImageDialog(this.currentMessage.sourceFilePath)
             })
-            .gesture(LongPressGesture().onAction(() => {
-              // 绑定长按的手势
-              this.showPopup = true
-            }))
+
+          } else if (this.currentMessage.messageType === MessageTypeEnum.TEXT) {
+            Text(this.currentMessage.messageContent)
+              .backgroundColor(currentUser.user_id === this.currentMessage.sendUser.user_id ?
+              $r("app.color.second_primary") : $r("app.color.white"))
+              .fontColor($r("app.color.text_primary"))
+              .padding(10)
+              .margin({
+                left: 10,
+                right: 10
+              })
+              .borderRadius(5)
+              .bindPopup(this.showPopup, {
+                builder: this.getContent,
+                popupColor: $r("app.color.popup_back"),
+                backgroundBlurStyle: BlurStyle.NONE,
+                onStateChange: (event) => {
+                  this.showPopup = event.isVisible
+                }
+              })
+              .gesture(LongPressGesture().onAction(() => {
+                // 绑定长按的手势
+                this.showPopup = true
+              }))
+          }
 
 
         }
