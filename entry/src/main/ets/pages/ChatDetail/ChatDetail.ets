@@ -77,10 +77,18 @@ struct ChatDetail {
   })
   @State
   previewUrl: string = ""
+  @State
+  previewType: MessageTypeEnum = MessageTypeEnum.TEXT
 
   // 打开弹窗的方法
-  openCustomImageDialog(filePath: string) {
-    this.previewUrl = filePath
+  openCustomImageDialog(filePath: string, type?: MessageTypeEnum) {
+    this.previewUrl = filePath;
+
+
+    if (type) {
+      this.previewType = type;
+    }
+
     this.dialogController.open()
   }
 
@@ -148,12 +156,40 @@ struct ChatDetail {
     this.scroller.scrollEdge(Edge.Bottom)
   }
 
+  // 发送视频的方法
+  sendVideoMessage(filePath: string) {
+    // 把输入框输入的数据添加到messageList中
+    let message = new MessageInfoModel({
+      messageContent: '[视频]',
+      sendUser: currentUser,
+      connectUser: this.talker,
+      sourceFilePath: filePath,
+      messageType: MessageTypeEnum.VIDEO
+    } as MessageInfo)
+    this.messageList.push(message)
+
+    // 添加数据
+    StoreClass.addChatMessage(this.talker.user_id, message)
+    this.scroller.scrollEdge(Edge.Bottom)
+  }
+
   @Builder
   CustomImageDialog() {
     Column() {
-      Image("file://" + this.previewUrl)
-        .width("100%")
-        .height("100%")
+      if (this.previewType === MessageTypeEnum.VIDEO) {
+        Video({
+          src: "file://" + this.previewUrl
+        })
+          .loop(true)
+          .autoPlay(true)
+          .controls(false)
+          .width("100%")
+          .height("100%")
+      } else if (this.previewType === MessageTypeEnum.IMAGE) {
+        Image("file://" + this.previewUrl)
+          .width("100%")
+          .height("100%")
+      }
     }
     .width("100%")
     .height("100%")
@@ -208,8 +244,8 @@ struct ChatDetail {
               delMessage: (id: string) => {
                 this.delMessage(id)
               },
-              openCustomImageDialog: (filePath: string) => {
-                this.openCustomImageDialog(filePath)
+              openCustomImageDialog: (filePath: string, type?: MessageTypeEnum) => {
+                this.openCustomImageDialog(filePath, type)
               }
             })
           }
@@ -232,6 +268,9 @@ struct ChatDetail {
         },
         sendImageMessage: (filePath: string) => {
           this.sendImageMessage(filePath)
+        },
+        sendVideoMessage: (filePath: string) => {
+          this.sendVideoMessage(filePath)
         }
       })
     }

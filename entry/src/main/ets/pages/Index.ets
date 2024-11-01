@@ -1,5 +1,7 @@
 import { TabBarClass } from '../models/tab'
 import Connect from './Connect'
+import Find from './Find'
+import My from './My'
 import WeChat from './WeChat'
 
 
@@ -63,9 +65,9 @@ struct Index {
             } else if (item.name === "connect") {
               Connect()
             } else if (item.name === "discover") {
-              Text("发现")
+              Find()
             } else if (item.name === "my") {
-              Text("我的")
+              My()
             }
           }.tabBar(this.CommonTabBar(item))
         })

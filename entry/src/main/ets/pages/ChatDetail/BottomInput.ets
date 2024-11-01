@@ -115,16 +115,20 @@ struct BottomInput {
   }
   sendImageMessage: (filePath: string) => void = () => {
   }
+  sendVideoMessage: (filePath: string) => void = () => {
+  }
 
   // 唤醒相机并发送拍摄的照片
   async openCamera() {
     try {
+      // 1. 唤醒相机
       let pickerProfile: picker.PickerProfile = {
         cameraPosition: camera.CameraPosition.CAMERA_POSITION_BACK
       };
       let pickerResult: picker.PickerResult = await picker.pick(getContext(),
         [picker.PickerMediaType.PHOTO, picker.PickerMediaType.VIDEO], pickerProfile);
 
+      // 2.选择拍照
       if (pickerResult.mediaType === "photo" && pickerResult.resultUri !== "") {
         //  调用打开文件方法, 如果图片在本地不存在,则进行创建
         const file = fileIo.openSync(pickerResult.resultUri, fileIo.OpenMode.READ_ONLY)
@@ -136,6 +140,17 @@ struct BottomInput {
         fileIo.closeSync(file.fd)
 
         this.sendImageMessage(newFileName)
+      } else { // 2. 选择拍视频
+        //  调用打开文件方法, 如果视频在本地不存在,则进行创建
+        const file = fileIo.openSync(pickerResult.resultUri, fileIo.OpenMode.READ_ONLY)
+        // 获取本地沙箱的files这个文件夹的对应的图片
+        const newFileName = getContext().filesDir + "/" + Date.now() + ".mp4"
+        // 将存入到本地沙箱的文件数据拷贝到newFileName文件中
+        fileIo.copyFileSync(file.fd, newFileName)
+        // 关闭打开
+        fileIo.closeSync(file.fd)
+
+        this.sendVideoMessage(newFileName)
       }
 
     } catch (error) {

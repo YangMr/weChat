@@ -1,6 +1,7 @@
 {
   "src": [
     "pages/Index",
-    "pages/ChatDetail/ChatDetail"
+    "pages/ChatDetail/ChatDetail",
+    "pages/PayQrCode/PayQrCode"
   ]
 }

@@ -51,9 +51,10 @@ struct message {
       icon: $r("app.media.ic_public_warin"),
     }
   ]
+  videoController: VideoController = new VideoController()
   delMessage: (messageId: string) => void = () => {
   }
-  openCustomImageDialog: (filePath: string) => void = () => {
+  openCustomImageDialog: (filePath: string, type?: MessageTypeEnum) => void = () => {
   }
 
   @Builder
@@ -109,7 +110,38 @@ struct message {
               left: 10
             })
             .onClick(() => {
-              this.openCustomImageDialog(this.currentMessage.sourceFilePath)
+              this.openCustomImageDialog(this.currentMessage.sourceFilePath, this.currentMessage.messageType)
+            })
+
+          } else if (this.currentMessage.messageType === MessageTypeEnum.VIDEO) {
+            Column() {
+              Stack() {
+                Video({
+                  src: "file://" + this.currentMessage.sourceFilePath,
+                  controller: this.videoController
+                })
+                  .controls(false)
+                  .width(100)
+                  .height(150)
+                  .borderRadius(4)
+                  .id(this.currentMessage.id)
+                  .onPrepared(async () => {
+                    await this.videoController.setCurrentTime(1) // 拨到0.1秒
+                  })
+
+
+                Image($r("app.media.ic_public_play"))
+                  .width(30)
+                  .height(30)
+                  .fillColor($r("app.color.back_color"))
+                  .onClick(() => {
+                    this.openCustomImageDialog(this.currentMessage.sourceFilePath, this.currentMessage.messageType)
+                  })
+              }
+            }
+            .margin({
+              left: 10,
+              right: 10
             })
 
           } else if (this.currentMessage.messageType === MessageTypeEnum.TEXT) {
