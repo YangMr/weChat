@@ -11,6 +11,10 @@
     {
       "name": "EntryAbility_label",
       "value": "wechat"
+    },
+    {
+      "name": "MICROPHONE_REASON",
+      "value": "sendMicroPhone"
     }
   ]
 }

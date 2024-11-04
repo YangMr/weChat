@@ -11,6 +11,10 @@
     {
       "name": "EntryAbility_label",
       "value": "微信"
+    },
+    {
+      "name": "MICROPHONE_REASON",
+      "value": "用于发送语音"
     }
   ]
 }

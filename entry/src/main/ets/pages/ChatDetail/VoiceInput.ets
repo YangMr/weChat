@@ -21,6 +21,7 @@ struct VoiceInput {
 
     if (this.voiceState === VoiceRecordEnum.RecordIng) {
       Row() {
+       
       }
       .width(180)
       .height(80)

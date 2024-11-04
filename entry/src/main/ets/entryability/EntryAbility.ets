@@ -1,11 +1,18 @@
-import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { abilityAccessCtrl, AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { KeyboardAvoidMode, window } from '@kit.ArkUI';
 import { StoreClass } from '../utils/StoreClass';
 
 export default class EntryAbility extends UIAbility {
-  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+  async onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+
+    // 获取创建程序控制管理器
+    const manager = abilityAccessCtrl.createAtManager()
+    // 申请录音(麦克风)权限 --- 进入应用的时候
+    await manager.requestPermissionsFromUser(this.context, [
+      "ohos.permission.MICROPHONE"
+    ])
   }
 
   onDestroy(): void {

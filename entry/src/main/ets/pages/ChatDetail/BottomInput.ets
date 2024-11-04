@@ -6,6 +6,7 @@ import { photoAccessHelper } from '@kit.MediaLibraryKit'
 import { fileIo } from '@kit.CoreFileKit'
 import { camera, cameraPicker as picker } from '@kit.CameraKit'
 import { BusinessError } from '@kit.BasicServicesKit'
+import { abilityAccessCtrl, bundleManager, common } from '@kit.AbilityKit'
 
 @Component
 struct BottomInput {
@@ -76,6 +77,11 @@ struct BottomInput {
   // 定义一个变量, 用来控制底部菜单的显示与隐藏
   @State
   showBottomCard: boolean = false
+  @State
+  duration: number = 0
+  // 保存定时器
+  @State
+  timer: number = -1
 
   @Builder
   getBottomCard(item: PopupItem) {
@@ -197,18 +203,86 @@ struct BottomInput {
         this.sendImageMessage(newFileName)
       })
     }
+  }
+
+  // 检测麦克风权限
+  checkMicroPhonePermission() {
+    // 创建程序控制管理器
+    const manager = abilityAccessCtrl.createAtManager()
+    //获取当前的应用信息
+    const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION)
+    // 检测麦克风权限
+    const status = manager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, "ohos.permission.MICROPHONE")
+    // 判断是否有录音权限
+    if (status === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
+      // 没有权限 -- 跳转到开启权限页面
+      (getContext() as common.UIAbilityContext).startAbility({
+        bundleName: "com.huawei.hmos.settings",
+        abilityName: "com.huawei.hmos.settings.MainAbility",
+        uri: "application_info_entry",
+        parameters: {
+          pushParams: bundleInfo.name
+        }
+      })
+    } else {
+
+      // 显示那个绿色的盒子
+      this.showVoiceCom = true
+
+      // 开始录音
+      this.collectVoice()
+    }
+  }
+
+  // 开始录音方法
+  collectVoice() {
+    // 进行计时
+    this.startTime()
+
+    // 正式录音
 
 
   }
 
-  // 1. 获取整个屏幕的宽度与高度
-  // 2. 获取当前手指触摸的坐标x - y
-  // 3. 手势拖动的时候, 判断当前手指触摸的坐标x - y 是否大于
-  // 屏幕高度 -  录音区域的高度
-  // 4. 如果大于 屏幕高度 -  录音区域的高度 说明手势拖动录音区域
-  // 5. 如果小于 屏幕高度 -  录音区域的高度 说明手势不在拖动录音区域
+  // 开启计时
+  startTime() {
+    this.timer = setInterval(() => {
+      this.duration++
 
-  // 1. 定义三个状态 0 录音 1 取消 2 语音转文字
+      promptAction.showToast({
+        message: `当前语音:${this.duration}秒`
+      })
+    }, 1000)
+  }
+
+  // 结束计时
+  endTime() {
+    clearInterval(this.timer)
+
+
+  }
+
+  // 手势结束时触发的方法
+  releaseFinger() {
+    // 让绿色的盒子消失
+    this.showVoiceCom = false
+
+    // 调用结束计时方法
+    this.endTime()
+
+    if (this.voiceState === VoiceRecordEnum.RecordIng) {
+      if (this.duration < 1) {
+        return promptAction.showToast({
+          message: "内容时间不足一秒！"
+        })
+      }
+      this.duration = 0
+    } else if (this.voiceState === VoiceRecordEnum.Cancel) {
+      this.duration = 0
+    } else if (this.voiceState === VoiceRecordEnum.Transfer) {
+      this.duration = 0
+    }
+  }
 
   @Builder
   getVoiceCom() {
@@ -250,13 +324,16 @@ struct BottomInput {
                 GestureMode.Parallel,
                 // 长按手势
                 LongPressGesture()
-                  .onAction(() => {
-                    // 手势开始的时候触发
-                    this.showVoiceCom = true
+                  .onAction(() => { // 手势开始的时候触发
+
+                    // 检测麦克风权限? 没有权限 -> 展示一个弹层: 权限界面
+                    this.checkMicroPhonePermission()
                   })
                   .onActionEnd(() => {
-                    // 手势结束的时候触发
-                    this.showVoiceCom = false
+
+
+                    // 手势结束时触发的方法
+                    this.releaseFinger()
                   }),
                 // 移动手势
                 PanGesture()
