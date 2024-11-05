@@ -2,6 +2,7 @@ import { abilityAccessCtrl, AbilityConstant, UIAbility, Want } from '@kit.Abilit
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { KeyboardAvoidMode, window } from '@kit.ArkUI';
 import { StoreClass } from '../utils/StoreClass';
+import { AvPlayerClass } from '../utils/AvPlayerClass';
 
 export default class EntryAbility extends UIAbility {
   async onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
@@ -31,6 +32,8 @@ export default class EntryAbility extends UIAbility {
 
       // 调用StoreClass中init方法,把getContent
       StoreClass.init(this.context)
+
+      AvPlayerClass.init(this.context)
 
       // 键盘避让, 解决的问题是输入框输入时, 拉起键盘时, 内容被顶走
       windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE)

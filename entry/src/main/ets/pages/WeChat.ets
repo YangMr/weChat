@@ -5,6 +5,7 @@ import { emitter } from '@kit.BasicServicesKit'
 import { router } from '@kit.ArkUI'
 import { PopupItem } from '../models/popup'
 import { scanBarcode, scanCore } from '@kit.ScanKit'
+import { FileOperate } from '../utils/FileOperate'
 
 @Preview
 @Component
@@ -150,9 +151,8 @@ struct WeChat {
 
 
       this.list.splice(index, 1)
-      // AlertDialog.show({
-      //   message: index + ""
-      // })
+
+      FileOperate.delUserPath(user_id)
     })
 
   }

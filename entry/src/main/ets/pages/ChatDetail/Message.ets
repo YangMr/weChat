@@ -1,6 +1,8 @@
 import { MessageInfo, MessageInfoModel, MessageTypeEnum } from '../../models/message'
 import { PopupItem } from '../../models/popup'
 import { currentUser } from '../../models/users'
+import { AudioRender } from '../../utils/AudioRender'
+import { FileOperate } from '../../utils/FileOperate'
 import { StoreClass } from '../../utils/StoreClass'
 
 @Component
@@ -36,6 +38,8 @@ struct message {
         await StoreClass.removeChatMessage(this.currentMessage.connectUser.user_id, this.currentMessage.id)
         // 删除UI界面的数据
         this.delMessage(this.currentMessage.id)
+
+        FileOperate.delFilePath(this.currentMessage.sourceFilePath)
       }
     },
     {
@@ -182,16 +186,16 @@ struct message {
             Row({ space: 6 }) {
               Text(this.currentMessage.sourceDuration + "'")
                 .textAlign(TextAlign.Center)
-
               Image($r("app.media.ic_public_recorder"))
                 .width(20)
                 .height(20)
                 .rotate({
                   angle: currentUser.user_id === this.currentMessage.sendUser.user_id ? 180 : 0
                 })
-
             }
             .width(this.getAudioWidth())
+            .justifyContent(currentUser.user_id === this.currentMessage.sendUser.user_id ? FlexAlign.End :
+            FlexAlign.Start)
             .height(40)
             .padding({
               left: 10,
@@ -205,6 +209,23 @@ struct message {
             $r('app.color.chat_primary') :
             $r("app.color.white"))
             .borderRadius(5)
+            .onClick(() => {
+              // 播放语音消息
+
+              AudioRender.start(this.currentMessage.sourceFilePath)
+            })
+            .bindPopup(this.showPopup, {
+              builder: this.getContent,
+              popupColor: $r("app.color.popup_back"),
+              backgroundBlurStyle: BlurStyle.NONE,
+              onStateChange: (event) => {
+                this.showPopup = event.isVisible
+              }
+            })
+            .gesture(LongPressGesture().onAction(() => {
+              // 绑定长按的手势
+              this.showPopup = true
+            }))
           }
 
 

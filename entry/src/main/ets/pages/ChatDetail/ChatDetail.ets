@@ -6,6 +6,8 @@ import { StoreClass } from '../../utils/StoreClass'
 import BottomInput from './BottomInput'
 import Message from './Message'
 import { emitter } from '@kit.BasicServicesKit'
+import { AudioRender } from '../../utils/AudioRender'
+import { AvPlayerClass } from '../../utils/AvPlayerClass'
 
 @Entry
 @Component
@@ -83,8 +85,6 @@ struct ChatDetail {
   // 打开弹窗的方法
   openCustomImageDialog(filePath: string, type?: MessageTypeEnum) {
     this.previewUrl = filePath;
-
-
     if (type) {
       this.previewType = type;
     }
@@ -109,6 +109,8 @@ struct ChatDetail {
 
 
     this.scroller.scrollEdge(Edge.Bottom)
+
+    AvPlayerClass.play("send")
   }
 
   // 定义机器人回复的方法
@@ -131,6 +133,8 @@ struct ChatDetail {
 
       // 添加数据
       StoreClass.addChatMessage(this.talker.user_id, message)
+
+      AvPlayerClass.play("information")
     } catch (e) {
       console.log(e)
     }
@@ -186,7 +190,7 @@ struct ChatDetail {
     } as MessageInfo)
     this.messageList.push(message)
 
-    
+
     // 添加数据
     StoreClass.addChatMessage(this.talker.user_id, message)
     this.scroller.scrollEdge(Edge.Bottom)
@@ -217,12 +221,16 @@ struct ChatDetail {
     })
   }
 
-  aboutToAppear(): void {
+  async aboutToAppear() {
     // 接受其他通过路由页面传递过来的参数
     this.talker = router.getParams() as UserInfo
 
     // 获取存储在首选项当中的某个人(当前传入的用户id)的数据
     this.messageList = StoreClass.getChatMessage(this.talker.user_id)
+
+    // 初始化音频实例对象方法
+
+    AudioRender.init()
   }
 
   // 删除UI界面数据的方法
@@ -230,6 +238,10 @@ struct ChatDetail {
     const index = this.messageList.findIndex((item: MessageInfoModel) => item.id === id)
     this.messageList.splice(index, 1)
     emitter.emit(StoreClass.wechat_key)
+  }
+
+  aboutToDisappear(): void {
+    AudioRender.release()
   }
 
   build() {
