@@ -52,6 +52,18 @@ struct message {
     }
   ]
   videoController: VideoController = new VideoController()
+
+  // 动态计算语音条的宽度
+  getAudioWidth() {
+    const min = 20
+    const max = 90
+
+    // 100 * 60 == 600 / 60 = 10 + 20 = 30
+    const calcWidth = min + (100 * this.currentMessage.sourceDuration / 60)
+
+    return (calcWidth > max ? max : calcWidth) + "%"
+  }
+
   delMessage: (messageId: string) => void = () => {
   }
   openCustomImageDialog: (filePath: string, type?: MessageTypeEnum) => void = () => {
@@ -129,7 +141,6 @@ struct message {
                     await this.videoController.setCurrentTime(1) // 拨到0.1秒
                   })
 
-
                 Image($r("app.media.ic_public_play"))
                   .width(30)
                   .height(30)
@@ -167,6 +178,33 @@ struct message {
                 // 绑定长按的手势
                 this.showPopup = true
               }))
+          } else if (this.currentMessage.messageType === MessageTypeEnum.AUDIO) {
+            Row({ space: 6 }) {
+              Text(this.currentMessage.sourceDuration + "'")
+                .textAlign(TextAlign.Center)
+
+              Image($r("app.media.ic_public_recorder"))
+                .width(20)
+                .height(20)
+                .rotate({
+                  angle: currentUser.user_id === this.currentMessage.sendUser.user_id ? 180 : 0
+                })
+
+            }
+            .width(this.getAudioWidth())
+            .height(40)
+            .padding({
+              left: 10,
+              right: 10
+            })
+            .margin({
+              right: 10,
+              left: 10
+            })
+            .backgroundColor(currentUser.user_id === this.currentMessage.sendUser.user_id ?
+            $r('app.color.chat_primary') :
+            $r("app.color.white"))
+            .borderRadius(5)
           }
 
 

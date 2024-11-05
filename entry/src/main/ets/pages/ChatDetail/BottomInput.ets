@@ -7,9 +7,14 @@ import { fileIo } from '@kit.CoreFileKit'
 import { camera, cameraPicker as picker } from '@kit.CameraKit'
 import { BusinessError } from '@kit.BasicServicesKit'
 import { abilityAccessCtrl, bundleManager, common } from '@kit.AbilityKit'
+import AudioCapture from '../../utils/AudioCapturer'
+import { FileOperate } from '../../utils/FileOperate'
+import { UserInfo } from '../../models/users'
 
 @Component
 struct BottomInput {
+  @State
+  talker: UserInfo = {} as UserInfo
   @State
   showVoice: boolean = false
   // 保存的是输入框输入的内容
@@ -82,6 +87,8 @@ struct BottomInput {
   // 保存定时器
   @State
   timer: number = -1
+  @State
+  audioFilePath: string = ""
 
   @Builder
   getBottomCard(item: PopupItem) {
@@ -111,10 +118,13 @@ struct BottomInput {
   }
 
   // 页面加载的时候获取整个屏幕的宽度与高度
-  aboutToAppear(): void {
+  async aboutToAppear() {
     // px 转化为 vp
     this.screenWidth = px2vp(display.getDefaultDisplaySync().width)
     this.screenHeight = px2vp(display.getDefaultDisplaySync().height)
+
+    // 调用初始化音频控制器方法
+    await AudioCapture.init()
   }
 
   sendTextMessage: (content: string) => void = () => {
@@ -122,6 +132,8 @@ struct BottomInput {
   sendImageMessage: (filePath: string) => void = () => {
   }
   sendVideoMessage: (filePath: string) => void = () => {
+  }
+  sendAudioMessage: (filePath: string, duration: number) => void = () => {
   }
 
   // 唤醒相机并发送拍摄的照片
@@ -236,12 +248,15 @@ struct BottomInput {
 
   // 开始录音方法
   collectVoice() {
-    // 进行计时
-    this.startTime()
+
 
     // 正式录音
+    this.audioFilePath = FileOperate.createAudioFile(this.talker.user_id)
 
+    AudioCapture.start(this.audioFilePath)
 
+    // 进行计时
+    this.startTime()
   }
 
   // 开启计时
@@ -258,14 +273,15 @@ struct BottomInput {
   // 结束计时
   endTime() {
     clearInterval(this.timer)
-
-
   }
 
   // 手势结束时触发的方法
   releaseFinger() {
     // 让绿色的盒子消失
     this.showVoiceCom = false
+
+    // 停止录音
+    AudioCapture.stop()
 
     // 调用结束计时方法
     this.endTime()
@@ -276,12 +292,22 @@ struct BottomInput {
           message: "内容时间不足一秒！"
         })
       }
+      this.sendAudioMessage(this.audioFilePath, this.duration)
       this.duration = 0
+      this.audioFilePath = ""
+
     } else if (this.voiceState === VoiceRecordEnum.Cancel) {
       this.duration = 0
+      this.audioFilePath = ""
     } else if (this.voiceState === VoiceRecordEnum.Transfer) {
       this.duration = 0
+      this.audioFilePath = ""
     }
+  }
+
+  aboutToDisappear(): void {
+    // 录音器的释放
+    AudioCapture.release()
   }
 
   @Builder

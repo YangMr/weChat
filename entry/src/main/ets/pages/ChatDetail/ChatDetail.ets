@@ -173,6 +173,25 @@ struct ChatDetail {
     this.scroller.scrollEdge(Edge.Bottom)
   }
 
+  // 发送语音的数据
+  sendAudioMessage(filePath: string, duration: number) {
+    // 把输入框输入的数据添加到messageList中
+    let message = new MessageInfoModel({
+      messageContent: '[语音]',
+      sendUser: currentUser,
+      connectUser: this.talker,
+      sourceFilePath: filePath,
+      messageType: MessageTypeEnum.AUDIO,
+      sourceDuration: duration
+    } as MessageInfo)
+    this.messageList.push(message)
+
+    
+    // 添加数据
+    StoreClass.addChatMessage(this.talker.user_id, message)
+    this.scroller.scrollEdge(Edge.Bottom)
+  }
+
   @Builder
   CustomImageDialog() {
     Column() {
@@ -271,7 +290,11 @@ struct ChatDetail {
         },
         sendVideoMessage: (filePath: string) => {
           this.sendVideoMessage(filePath)
-        }
+        },
+        sendAudioMessage: (filePath: string, duration: number) => {
+          this.sendAudioMessage(filePath, duration)
+        },
+        talker: this.talker
       })
     }
     .height('100%')
